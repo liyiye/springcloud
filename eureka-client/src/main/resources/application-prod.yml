@@ -1,0 +1,5 @@
+eureka:
+  client:
+    serviceUrl:
+      #defaultZone: http://${EUREKA_SERVER_NP_SERVICE_HOST}:${EUREKA_SERVER_NP_SERVICE_PORT}/eureka  #通过service的地址，端口的变量
+      defaultZone: ${EUREKA_SERVER_ADDRESS}

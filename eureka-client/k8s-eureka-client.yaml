@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: eureka-client
+data:
+  # 这种方式的地址，也可以访问
+  # you should set eureka_service_address: http://eureka-0.eureka:8761/eureka,...,http://eureka-(n-1).eureka:8761/eureka
+  eureka_service_address: http://eureka-server-0.eureka-server.default.svc.cluster.local:8761/eureka,http://eureka-server-1.eureka-server.default.svc.cluster.local:8761/eureka,http://eureka-server-2.eureka-server.default.svc.cluster.local:8761/eureka
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eureka-client-dpm
+  labels:
+    app: eureka-client-dpm
+spec:
+  replicas: 5
+  template:
+    metadata:
+      labels:
+        app: eureka-client
+    spec:
+      containers:
+        - name: eureka-client
+          image: liyiye/com.k8s-eureka-client:0.0.1-SNAPSHOT
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: EUREKA_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  name: eureka-server
+                  key: eureka_service_address
+            - name: ENVIRONMENT
+              value: "prod"
+      restartPolicy: Always
+  selector:
+    matchLabels:
+        app: eureka-client
+
