@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: eurekka-server
+  profiles:
+    active: ${ENVIRONMENT:dev}
+
+

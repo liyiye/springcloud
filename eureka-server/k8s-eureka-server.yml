@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: eureka-server
+data:
+  # if you want to deploy n instances of eureka cluster, 
+  # you should set eureka_service_address: http://eureka-0.eureka:8761/eureka,...,http://eureka-(n-1).eureka:8761/eureka
+  eureka_service_address: http://eureka-server-0.eureka-server:8761/eureka,http://eureka-server-1.eureka-server:8761/eureka,http://eureka-server-2.eureka-server:8761/eureka
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eureka-server-np
+  labels:
+    app: eureka-server
+spec:
+  type: NodePort
+  ports:
+  - port: 8761
+    nodePort: 30030
+    name: eureka-server
+  selector:
+    app: eureka-server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eureka-server
+  labels:
+    app: eureka-server
+spec:
+  clusterIP: None
+  ports:
+  - port: 8761
+    name: eureka-server
+  selector:
+    app: eureka-server
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: eureka-server
+spec:
+  serviceName: 'eureka-server'
+  # n instances
+  replicas: 3
+  selector:
+    matchLabels:
+      app: eureka-server
+  template:
+    metadata:
+      labels:
+        app: eureka-server
+    spec:
+      containers:
+      - name: eureka-server
+        image: liyiye/com.k8s-eureka-server:0.0.1-SNAPSHOT
+        ports:
+        - containerPort: 8761
+        env:
+        - name: EUREKA_SERVER_ADDRESS
+          valueFrom:
+            configMapKeyRef:
+              name: eureka-server
+              key: eureka_service_address
+        - name: ENVIRONMENT
+          value: "prod"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8761
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8761
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
