@@ -22,7 +22,7 @@ dependencies {
 docker {
 	springBootApplication {
 		baseImage = 'openjdk:8-alpine'
-		tag = "ngtms-test/${project.group}-${project.name}:${project.version}"
+		tag = "192.168.132.100/ngtms-test/${project.group}-${project.name}:${project.version}"
 	}
 	url = 'tcp://192.168.132.100:2375'
 	//registryCredentials {
@@ -32,7 +32,7 @@ docker {
 
 //	}
 	registryCredentials {
-		url = 'http://192.168.132.100/harbor/projects/2/repositories/'
+		//url = 'http://192.168.132.100/harbor/projects/2/repositories/'
 		username = 'liyiye'
 		password = 'Li_yiye123456'
 	}
