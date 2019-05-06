@@ -22,13 +22,18 @@ dependencies {
 docker {
 	springBootApplication {
 		baseImage = 'openjdk:8-alpine'
-		tag = "liyiye/${project.group}-${project.name}:${project.version}"
+		tag = "ngtms-test/${project.group}-${project.name}:${project.version}"
 	}
 	url = 'tcp://192.168.132.100:2375'
-	registryCredentials {
-		url = 'https://index.docker.io/v1/'
-		username = 'liyiye'
-		password = 'li_yiye123456'
+	//registryCredentials {
+//		url = 'https://index.docker.io/v1/'
+//		username = 'liyiye'
+//		password = 'li_yiye123456'
 
+//	}
+	registryCredentials {
+		url = 'http://192.168.132.100/harbor/projects/2/repositories/'
+		username = 'liyiye'
+		password = 'Li_yiye123456'
 	}
 }
