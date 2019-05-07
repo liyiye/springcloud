@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: userdeploy
+  labels:
+    app: userdeploy
+spec:
+  replicas: 4
+  template:
+    metadata:
+      labels:
+        app: userdeploy
+    spec:
+      containers:
+        - name: userpod
+          image: liyiye/k8s-userweb:0.0.1-SNAPSHOT
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+      restartPolicy: Always
+  selector:
+    matchLabels:
+        app: userdeploy
+
