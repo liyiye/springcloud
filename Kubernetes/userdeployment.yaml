@@ -13,10 +13,12 @@ spec:
     spec:
       containers:
         - name: userpod
-          image: liyiye/k8s-userweb:0.0.1-SNAPSHOT
+          image: 192.168.132.100/ngtms-test/k8s-orderweb:0.0.1-SNAPSHOT
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
+      imagePullSecrets:
+         - name: regsecret
       restartPolicy: Always
   selector:
     matchLabels:
