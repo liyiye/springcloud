@@ -19,11 +19,14 @@ dependencies {
 	runtimeOnly 'org.springframework.boot:spring-boot-devtools'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
+String version=System.getenv().get("BUILD_NUMBER")
+if(version==null){
+	version=project.version
+}
 docker {
 	springBootApplication {
 		baseImage = 'openjdk:8-alpine'
-		println System.getenv().get("BUILD_NUMBER")
-		tag = "192.168.132.100/ngtms-test/${project.group}-${project.name}:${project.version}"
+		tag = "192.168.132.100/ngtms-test/${project.group}-${project.name}:${version}"
 	}
 	url = 'tcp://192.168.132.100:2375'
 	//registryCredentials {
