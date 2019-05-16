@@ -25,5 +25,5 @@ done
 if [ $checkcount  -eq 0  ];
 then
  echo "发布失败"
- exit1;
+ exit 1;
 fi
