@@ -1,0 +1,120 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+import com.bmuschko.gradle.docker.tasks.image.*
+plugins {
+    id "com.bmuschko.docker-java-application" version "4.8.0"       //通过其远程API管理Docker镜像和容器.
+    id "com.bmuschko.docker-remote-api" version "4.8.0"             //Gradle插件,通过其远程API管理Docker镜像和容器.
+}
+apply plugin: 'application'
+apply plugin: 'com.bmuschko.docker-remote-api'
+apply plugin: 'com.bmuschko.docker-java-application'
+mainClassName = 'com.wo56.business.StartSrvServer'
+applicationDefaultJvmArgs = ["-Djava.awt.headless=true -Djava.net.preferIPv4Stack=true -Dsun.net.inetaddr.ttl=10 -Djava.security.egd=file:/dev/zero -Dfile.encoding=GBK"]
+
+dependencies {
+    compile (
+    	project(':common'),
+    	
+    	'org.beetl:beetl-core:2.1.0',
+    	'com.unionpay:upacp_sdk:1.0.0',
+    	'com.gnete:gnete-security:1.0.0', 
+    	'com.gnete:gnete-bc:139',
+    	'org.testng:testng:6.11',
+    	'com.taobao:taobao-sdk-dingding:1.0.0'
+    )
+    
+    compile ('cn.featherfly:bccs-api:3.0.1') {
+    	transitive = false
+    }
+    
+    testCompile (
+    'com.ibeetl:xlsunit:1.0.8',
+    'junit:junit:4.8.2',
+    'org.springframework:spring-test:4.2.3.RELEASE',
+    'net.sourceforge.groboutils:groboutils-core:5'
+    )
+}
+
+
+test {
+    useTestNG() {
+        useDefaultListeners = true
+    }
+}
+
+
+def loadEnvConfig(env) {
+    def configFile = file('config.groovy')
+    new ConfigSlurper(env).parse(configFile.toURL()).toProperties()
+}
+
+
+/**
+ * ===================================================================================================================
+ * -------------------------------------------      docker相关配置        ---------------------------------------------
+ * ===================================================================================================================
+ */
+
+// Dockerfile文件存放地址
+String dockerFileDir = 'build/docker'
+
+//docker文件
+String dockFilePath = "${dockerFileDir}/Dockerfile"
+
+
+docker {
+	url = 'tcp://192.168.132.100:2375'
+	registryCredentials {
+		username = 'liyiye'
+		password = 'Li_yiye123456'
+	}
+}
+
+/**
+ * 创建Dockerfile文件.
+ */
+task createDockerfile(type: Dockerfile) {
+    //指定脚本分组
+    group = "docker"
+    //脚本依赖 build任务
+    dependsOn svbuild
+    //指定生成的Dockerfile所处的位置.
+    destFile = project.file(dockFilePath)
+    //指定依赖的基础镜像
+    from '192.168.132.100/ghc/ghcbase:1.0.0'
+    
+    //添加参数
+    arg "FILE"
+    //编译时将jar包保存进去
+    copyFile('${FILE}', "/app/")
+    runCommand("unzip /app/${project.name}-${project.version}.zip -d /app/ && rm -rf /app/${project.name}-${project.version}.zip ")
+    runCommand("mv /app/${project.name}-${project.version}/lib/*.jar /app/")
+    exposePort(80)
+    //指定脚本执行命令
+    entryPoint("java", "com.framework.core.inter.FrameworkApplication","APP")
+}
+
+/**
+ * 构建基础镜像
+ */
+task buildImage(type: DockerBuildImage) {
+    group = 'docker'
+    dependsOn createDockerfile
+    //指定Dockerfile文件
+    //inputDir = project.file("${project.rootDir}")
+    inputDir = project.file("build/")
+    dockerFile = project.file(dockFilePath)
+    //标签
+    tags = ["192.168.132.100/ghc/${project.name}:${project.version}"]
+    //指定在执行build命令时,使用的构建参数.
+    buildArgs = ["FILE": "distributions/${project.name}-${project.version}.zip"]
+}
+/**
+ * 构建基础镜像
+ */
+task pushImage(type: DockerPushImage) {
+	dependsOn buildImage
+    group = 'docker'
+    imageName="192.168.132.100/ghc/${project.name}:${project.version}"
+}
+
+

@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: svdeploy
+  labels:
+    app: svdeploy
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: svdeploy
+    spec:
+      containers:
+        - name: svpod
+          image: 192.168.132.100/ghc/sv:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+      imagePullSecrets:
+         - name: regsecret
+      restartPolicy: Always
+  selector:
+    matchLabels:
+        app: svdeploy
+
