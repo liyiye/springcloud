@@ -24,8 +24,8 @@ then
  echo "发布失败，进行回滚,失败原因："
  message=`kubectl get pods -o=jsonpath='{.items[*].status.containerStatuses[*].state.*.message}'`
  echo $message
-  echo "进行回滚：$1"
-  rollout=`kubectl rollout undo deployment/orderdeploy`
+  echo "进行回滚，回滚的总数：${totalnum}"
+  rollout=`kubectl rollout undo deployment/$1`
   checkcount=20
 while [ $checkcount -gt 0 ];
 do
