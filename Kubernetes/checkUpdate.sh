@@ -22,9 +22,10 @@ done
 if [ $checkcount  -eq 0  ];
 then
  echo "发布失败，进行回滚,失败原因："
- echo `kubectl get pods -o=jsonpath='{.items[*].status.containerStatuses[*].state.*.message}'`
+ message=`kubectl get pods -o=jsonpath='{.items[*].status.containerStatuses[*].state.*.message}'`
+ echo $message
   echo "进行回滚：$1"
- `kubectl rollout undo deployment/orderdeploy`
+  rollout=`kubectl rollout undo deployment/orderdeploy`
   checkcount=20
 while [ $checkcount -gt 0 ];
 do
