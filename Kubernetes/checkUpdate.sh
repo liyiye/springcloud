@@ -22,7 +22,7 @@ fi
 
 done
 
-if [ $checkcount -gt 0  ];
+if [ $checkcount  -eq 0  ];
 then
  echo "发布失败"
  exit1;
