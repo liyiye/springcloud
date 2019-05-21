@@ -5,4 +5,5 @@
 
 #### 2. 镜像文件
 1. Dockerfile 为基础镜像，通过该文件生成基础的配置文件
+  docker build -t 192.168.132.100/ghc/ghcbase:1.0.0 .
 2. 通过gradle脚本分别createDockerfile(生成镜像文件)，buildImage(编译镜像)，pushImage(发布镜像)

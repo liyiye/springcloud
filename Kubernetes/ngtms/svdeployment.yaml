@@ -14,14 +14,17 @@ spec:
       containers:
         - name: svpod
           image: 192.168.132.100/ghc/sv:1.0.0
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: logpath
+              mountPath: /app/log/
           ports:
             - containerPort: 80
           readinessProbe:
             httpGet:
               port: 80
               path: /intf
-            initialDelaySeconds: 120
+            initialDelaySeconds: 20
             periodSeconds: 15
             timeoutSeconds: 1
             successThreshold: 3
@@ -30,13 +33,18 @@ spec:
            httpGet:
              port: 80
              path: /intf
-           initialDelaySeconds: 180
+           initialDelaySeconds: 80
            periodSeconds: 15
            timeoutSeconds: 1
            failureThreshold: 3
       imagePullSecrets:
          - name: regsecret
       restartPolicy: Always
+      volumes:
+        - name: logpath
+          hostPath:
+            path: /app/log/
+            type: DirectoryOrCreate
   selector:
     matchLabels:
         app: svdeploy

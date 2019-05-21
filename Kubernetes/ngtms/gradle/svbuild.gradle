@@ -12,25 +12,25 @@ applicationDefaultJvmArgs = ["-Djava.awt.headless=true -Djava.net.preferIPv4Stac
 
 dependencies {
     compile (
-    	project(':common'),
-    	
-    	'org.beetl:beetl-core:2.1.0',
-    	'com.unionpay:upacp_sdk:1.0.0',
-    	'com.gnete:gnete-security:1.0.0', 
-    	'com.gnete:gnete-bc:139',
-    	'org.testng:testng:6.11',
-    	'com.taobao:taobao-sdk-dingding:1.0.0'
+            project(':common'),
+
+            'org.beetl:beetl-core:2.1.0',
+            'com.unionpay:upacp_sdk:1.0.0',
+            'com.gnete:gnete-security:1.0.0',
+            'com.gnete:gnete-bc:139',
+            'org.testng:testng:6.11',
+            'com.taobao:taobao-sdk-dingding:1.0.0'
     )
-    
+
     compile ('cn.featherfly:bccs-api:3.0.1') {
-    	transitive = false
+        transitive = false
     }
-    
+
     testCompile (
-    'com.ibeetl:xlsunit:1.0.8',
-    'junit:junit:4.8.2',
-    'org.springframework:spring-test:4.2.3.RELEASE',
-    'net.sourceforge.groboutils:groboutils-core:5'
+            'com.ibeetl:xlsunit:1.0.8',
+            'junit:junit:4.8.2',
+            'org.springframework:spring-test:4.2.3.RELEASE',
+            'net.sourceforge.groboutils:groboutils-core:5'
     )
 }
 
@@ -62,11 +62,11 @@ String dockFilePath = "${dockerFileDir}/Dockerfile"
 
 
 docker {
-	url = 'tcp://192.168.132.100:2375'
-	registryCredentials {
-		username = 'liyiye'
-		password = 'Li_yiye123456'
-	}
+    url = 'tcp://192.168.132.100:2375'
+    registryCredentials {
+        username = 'liyiye'
+        password = 'Li_yiye123456'
+    }
 }
 
 /**
@@ -76,12 +76,12 @@ task createDockerfile(type: Dockerfile) {
     //指定脚本分组
     group = "docker"
     //脚本依赖 build任务
-    dependsOn svbuild
+    dependsOn build
     //指定生成的Dockerfile所处的位置.
     destFile = project.file(dockFilePath)
     //指定依赖的基础镜像
     from '192.168.132.100/ghc/ghcbase:1.0.0'
-    
+
     //添加参数
     arg "FILE"
     //编译时将jar包保存进去
@@ -90,7 +90,7 @@ task createDockerfile(type: Dockerfile) {
     runCommand("mv /app/${project.name}-${project.version}/lib/*.jar /app/")
     exposePort(80)
     //指定脚本执行命令
-    entryPoint("java", "com.framework.core.inter.FrameworkApplication","APP")
+    entryPoint("/app/start.sh", "APP","${project.name}")
 }
 
 /**
@@ -112,7 +112,7 @@ task buildImage(type: DockerBuildImage) {
  * 构建基础镜像
  */
 task pushImage(type: DockerPushImage) {
-	dependsOn buildImage
+    dependsOn buildImage
     group = 'docker'
     imageName="192.168.132.100/ghc/${project.name}:${project.version}"
 }
