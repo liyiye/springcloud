@@ -17,6 +17,23 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
+          readinessProbe:
+            httpGet:
+              port: 80
+              path: /intf
+            initialDelaySeconds: 120
+            periodSeconds: 15
+            timeoutSeconds: 1
+            successThreshold: 3
+            failureThreshold: 3
+          livenessProbe:
+           httpGet:
+             port: 80
+             path: /intf
+           initialDelaySeconds: 180
+           periodSeconds: 15
+           timeoutSeconds: 1
+           failureThreshold: 3
       imagePullSecrets:
          - name: regsecret
       restartPolicy: Always
